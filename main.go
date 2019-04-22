@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"runtime"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -22,9 +23,20 @@ func main() {
 		panic(err)
 	}
 
-	p := post{}
+	p := &post{}
 
-	doc.Find("body").Children().Each(func(i int, div *goquery.Selection) {
+	if runtime.GOOS == "windows" {
+		parse(doc.Find("body > div").Children(), p)
+	} else {
+		parse(doc.Find("body").Children(), p)
+	}
+
+	fmt.Println(len(p.paragraphs))
+	fmt.Println(p.String())
+}
+
+func parse(divs *goquery.Selection, p *post) {
+	divs.Each(func(i int, div *goquery.Selection) {
 		if _, exists := div.Attr("style"); exists {
 			p.addParagraph(&code{div})
 			return
@@ -50,7 +62,4 @@ func main() {
 
 		fmt.Println(nodeName, node.Text())
 	})
-
-	fmt.Println(len(p.paragraphs))
-	fmt.Println(p.String())
 }
