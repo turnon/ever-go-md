@@ -61,12 +61,17 @@ func (p *post) addParagraph(para paragraph) {
 }
 
 func (p *post) String() string {
-	sb := strings.Builder{}
+	strs := []string{}
 	for _, p := range p.paragraphs {
-		sb.WriteString(p.String())
-		sb.WriteString("\n")
+		str := p.String()
+		length := len(strs)
+		if length > 0 && strs[length-1] == "\n" && str == "\n" {
+			continue
+		}
+
+		strs = append(strs, str)
 	}
-	return sb.String()
+	return strings.Join(strs, "\n")
 }
 
 func (c *code) String() string {
@@ -81,7 +86,7 @@ func (c *code) String() string {
 		sb.WriteString("\n")
 	})
 
-	sb.WriteString("```\n")
+	sb.WriteString("```")
 	return sb.String()
 }
 
