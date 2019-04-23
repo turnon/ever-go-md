@@ -58,8 +58,15 @@ func (p *post) meta() string {
 	sb.WriteString("date: ")
 	sb.WriteString(p.CreatedAt())
 	sb.WriteString("\n")
+	sb.WriteString("tags: ")
+	sb.WriteString(p.tagsStr())
+	sb.WriteString("\n")
 	sb.WriteString("---\n")
 	return sb.String()
+}
+
+func (p *post) tagsStr() string {
+	return `["` + strings.Join(p.Tags(), `", "`) + `"]`
 }
 
 func (p *post) parseBody() {
