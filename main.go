@@ -11,6 +11,8 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+var winHTMLRebundantTags = regexp.MustCompile(`(?s)<a name="\d+"/>.*?<br/>`)
+
 func main() {
 	file := os.Args[1]
 
@@ -35,19 +37,20 @@ func main() {
 }
 
 func windowsBody(data []byte) *goquery.Selection {
-	r, _ := regexp.Compile(`(?s)<a name="\d+"/>.*?<br/>`)
-	data = r.ReplaceAll(data, []byte(""))
-	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(data))
-	if err != nil {
-		panic(err)
-	}
+	data = winHTMLRebundantTags.ReplaceAll(data, []byte(""))
+	doc := fileToDoc(data)
 	return doc.Find("div > span").Children()
 }
 
 func macBody(data []byte) *goquery.Selection {
+	doc := fileToDoc(data)
+	return doc.Find("body").Children()
+}
+
+func fileToDoc(data []byte) *goquery.Document {
 	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(data))
 	if err != nil {
 		panic(err)
 	}
-	return doc.Find("body").Children()
+	return doc
 }
