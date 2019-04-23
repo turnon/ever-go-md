@@ -9,7 +9,6 @@ import (
 
 type post struct {
 	html
-	title      string
 	paragraphs []paragraph
 }
 
@@ -47,7 +46,6 @@ func determinedFormat(data []byte) html {
 }
 
 func (p *post) parse() {
-	p.title = p.Title()
 	p.parseBody()
 }
 
@@ -56,6 +54,9 @@ func (p *post) meta() string {
 	sb.WriteString("---\n")
 	sb.WriteString("title: ")
 	sb.WriteString(p.Title())
+	sb.WriteString("\n")
+	sb.WriteString("date: ")
+	sb.WriteString(p.CreatedAt())
 	sb.WriteString("\n")
 	sb.WriteString("---\n")
 	return sb.String()

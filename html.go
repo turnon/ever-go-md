@@ -9,6 +9,7 @@ import (
 
 type html interface {
 	Title() string
+	CreatedAt() string
 	Body() *goquery.Selection
 }
 
@@ -23,6 +24,7 @@ type macHTML struct {
 var (
 	winHTMLRebundantTags = regexp.MustCompile(`(?s)<a name="\d+"/>.*?<br/>`)
 	macTitle             = regexp.MustCompile(`(?s)<title>(.*?)</title>`)
+	macCreatedAt         = regexp.MustCompile(`(?s)<meta name="created" content="(\d{4}-\d{2}-\d{2}).*?/>`)
 )
 
 func (w *winHTML) Body() *goquery.Selection {
@@ -35,6 +37,10 @@ func (w *winHTML) Title() string {
 	return ""
 }
 
+func (w *winHTML) CreatedAt() string {
+	return ""
+}
+
 func (m *macHTML) Body() *goquery.Selection {
 	doc := fileToDoc(m.data)
 	return doc.Find("body").Children()
@@ -42,6 +48,11 @@ func (m *macHTML) Body() *goquery.Selection {
 
 func (m *macHTML) Title() string {
 	byts := macTitle.FindSubmatch(m.data)[1]
+	return string(byts)
+}
+
+func (m *macHTML) CreatedAt() string {
+	byts := macCreatedAt.FindSubmatch(m.data)[1]
 	return string(byts)
 }
 
