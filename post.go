@@ -1,12 +1,14 @@
 package main
 
 import (
+	"runtime"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
 type post struct {
+	html
 	paragraphs []paragraph
 }
 
@@ -29,8 +31,46 @@ type link struct {
 	div *goquery.Selection
 }
 
-func (p *post) parseBody(divs *goquery.Selection) {
-	divs.Each(func(i int, div *goquery.Selection) {
+func newPost(data []byte) *post {
+	p := &post{html: determinedFormat(data)}
+	p.parse()
+	return p
+}
+
+func determinedFormat(data []byte) html {
+	if runtime.GOOS == "windows" {
+		return &winHTML{data}
+	}
+
+	return &macHTML{data}
+}
+
+func (p *post) parse() {
+	p.parseBody()
+}
+
+func (p *post) meta() string {
+	sb := strings.Builder{}
+	sb.WriteString("---\n")
+	sb.WriteString("title: ")
+	sb.WriteString(p.Title())
+	sb.WriteString("\n")
+	sb.WriteString("date: ")
+	sb.WriteString(p.CreatedAt())
+	sb.WriteString("\n")
+	sb.WriteString("tags: ")
+	sb.WriteString(p.tagsStr())
+	sb.WriteString("\n")
+	sb.WriteString("---\n")
+	return sb.String()
+}
+
+func (p *post) tagsStr() string {
+	return `["` + strings.Join(p.Tags(), `", "`) + `"]`
+}
+
+func (p *post) parseBody() {
+	p.Body().Each(func(i int, div *goquery.Selection) {
 		if _, exists := div.Attr("style"); exists {
 			p.addParagraph(&code{div})
 			return
@@ -61,7 +101,7 @@ func (p *post) addParagraph(para paragraph) {
 }
 
 func (p *post) String() string {
-	strs := []string{}
+	strs := []string{p.meta()}
 	for _, p := range p.paragraphs {
 		str := p.String()
 		length := len(strs)
