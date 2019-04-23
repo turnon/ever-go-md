@@ -25,8 +25,10 @@ type macHTML struct {
 
 var (
 	winHTMLRebundantTags = regexp.MustCompile(`(?s)<a name="\d+"/>.*?<br/>`)
-	macTitle             = regexp.MustCompile(`(?s)<title>(.*?)</title>`)
+	title                = regexp.MustCompile(`(?s)<title>(.*?)</title>`)
+	winCreatedAt         = regexp.MustCompile(`(?s)<tr><td><b>创建时间：</b></td><td><i>(.*?)\s.*?</i></td></tr>`)
 	macCreatedAt         = regexp.MustCompile(`(?s)<meta name="created" content="(\d{4}-\d{2}-\d{2}).*?/>`)
+	winTags              = regexp.MustCompile(`<tr><td><b>标签：</b></td><td><i>(.*?)</i></td></tr>`)
 	macTags              = regexp.MustCompile(`(?s)<meta name="keywords" content="(.*?)"/>`)
 )
 
@@ -37,15 +39,18 @@ func (w *winHTML) Body() *goquery.Selection {
 }
 
 func (w *winHTML) Title() string {
-	return ""
+	byts := title.FindSubmatch(w.data)[1]
+	return string(byts)
 }
 
 func (w *winHTML) CreatedAt() string {
-	return ""
+	byts := winCreatedAt.FindSubmatch(w.data)[1]
+	return string(byts)
 }
 
 func (w *winHTML) Tags() []string {
-	return []string{}
+	byts := winTags.FindSubmatch(w.data)[1]
+	return strings.Split(string(byts), ", ")
 }
 
 func (m *macHTML) Body() *goquery.Selection {
@@ -54,7 +59,7 @@ func (m *macHTML) Body() *goquery.Selection {
 }
 
 func (m *macHTML) Title() string {
-	byts := macTitle.FindSubmatch(m.data)[1]
+	byts := title.FindSubmatch(m.data)[1]
 	return string(byts)
 }
 
