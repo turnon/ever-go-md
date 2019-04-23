@@ -1,18 +1,14 @@
 package main
 
 import (
-	"bytes"
-	"regexp"
 	"runtime"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
 
-var winHTMLRebundantTags = regexp.MustCompile(`(?s)<a name="\d+"/>.*?<br/>`)
-
 type post struct {
-	data       []byte
+	html
 	paragraphs []paragraph
 }
 
@@ -36,36 +32,25 @@ type link struct {
 }
 
 func newPost(data []byte) *post {
-	p := &post{data: data}
+	p := &post{html: determinedFormat(data)}
 	p.parse()
 	return p
 }
 
-func (p *post) parse() {
-	p.parseBody(p.body())
-}
-
-func (p *post) body() *goquery.Selection {
+func determinedFormat(data []byte) html {
 	if runtime.GOOS == "windows" {
-		data := winHTMLRebundantTags.ReplaceAll(p.data, []byte(""))
-		doc := fileToDoc(data)
-		return doc.Find("div > span").Children()
+		return &winHTML{data}
 	}
 
-	doc := fileToDoc(p.data)
-	return doc.Find("body").Children()
+	return &macHTML{data}
 }
 
-func fileToDoc(data []byte) *goquery.Document {
-	doc, err := goquery.NewDocumentFromReader(bytes.NewReader(data))
-	if err != nil {
-		panic(err)
-	}
-	return doc
+func (p *post) parse() {
+	p.parseBody()
 }
 
-func (p *post) parseBody(divs *goquery.Selection) {
-	divs.Each(func(i int, div *goquery.Selection) {
+func (p *post) parseBody() {
+	p.Body().Each(func(i int, div *goquery.Selection) {
 		if _, exists := div.Attr("style"); exists {
 			p.addParagraph(&code{div})
 			return
