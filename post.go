@@ -1,6 +1,9 @@
 package main
 
 import (
+	"crypto/md5"
+	"fmt"
+	"io/ioutil"
 	"runtime"
 	"strings"
 
@@ -31,6 +34,15 @@ type link struct {
 	div *goquery.Selection
 }
 
+func newPostFromPath(path string) *post {
+	data, err := ioutil.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+
+	return newPost(data)
+}
+
 func newPost(data []byte) *post {
 	p := &post{html: determinedFormat(data)}
 	p.parse()
@@ -47,6 +59,11 @@ func determinedFormat(data []byte) html {
 
 func (p *post) parse() {
 	p.parseBody()
+}
+
+func (p *post) MdFileName() string {
+	sum := md5.Sum([]byte(p.String()))
+	return fmt.Sprintf("%x", sum) + ".md"
 }
 
 func (p *post) meta() string {
