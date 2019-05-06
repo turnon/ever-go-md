@@ -8,9 +8,11 @@ import (
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/pkg/errors"
 )
 
 type post struct {
+	path string
 	html
 	paragraphs []paragraph
 }
@@ -40,7 +42,9 @@ func newPostFromPath(path string) *post {
 		panic(err)
 	}
 
-	return newPost(data)
+	p := newPost(data)
+	p.path = path
+	return p
 }
 
 func newPost(data []byte) *post {
@@ -118,6 +122,13 @@ func (p *post) addParagraph(para paragraph) {
 }
 
 func (p *post) String() string {
+	defer func() {
+		if r := recover(); r != nil {
+			r = errors.Wrap(r.(runtime.Error), p.path)
+			panic(r)
+		}
+	}()
+
 	strs := []string{p.meta()}
 	for _, p := range p.paragraphs {
 		str := p.String()
