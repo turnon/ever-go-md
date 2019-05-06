@@ -73,9 +73,9 @@ func (p *post) MdFileName() string {
 func (p *post) meta() string {
 	sb := strings.Builder{}
 	sb.WriteString("---\n")
-	sb.WriteString("title: ")
+	sb.WriteString("title: \"")
 	sb.WriteString(p.Title())
-	sb.WriteString("\n")
+	sb.WriteString("\"\n")
 	sb.WriteString("date: ")
 	sb.WriteString(p.CreatedAt())
 	sb.WriteString("\n")
