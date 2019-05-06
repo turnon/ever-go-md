@@ -8,10 +8,16 @@ import (
 )
 
 func main() {
-	singleFile := flag.String("file", "", "file path")
-	fromDir := flag.String("from", "", "from dir")
-	toDir := flag.String("to", "", "to dir")
+	singleFile := flag.String("file", "", "the single file will be converted")
+	fromDir := flag.String("from", "", "files in this dir will be converted")
+	toDir := flag.String("to", "", "output to this dir if specified, else output to stdout")
+	help := flag.Bool("help", false, "print usage")
 	flag.Parse()
+
+	if *help {
+		flag.PrintDefaults()
+		return
+	}
 
 	outFunc := output(*toDir)
 
