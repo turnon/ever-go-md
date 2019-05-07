@@ -100,7 +100,7 @@ func (p *post) parseBody() {
 		node := div.Children().First()
 		nodeName := goquery.NodeName(node)
 
-		if nodeName == "" {
+		if nodeName == "" || nodeName == "span" {
 			p.addParagraph(&text{div})
 			return
 		}
