@@ -45,7 +45,15 @@ func (w *winHTML) Title() string {
 
 func (w *winHTML) CreatedAt() string {
 	byts := winCreatedAt.FindSubmatch(w.data)[1]
-	return string(byts)
+	str := string(byts)
+	arr := []string{}
+	for _, numbers := range strings.Split(str, "/") {
+		if len(numbers) == 1 {
+			numbers = "0" + numbers
+		}
+		arr = append(arr, numbers)
+	}
+	return strings.Join(arr, "-")
 }
 
 func (w *winHTML) Tags() []string {
