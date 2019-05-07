@@ -139,7 +139,7 @@ func (p *post) String() string {
 
 		strs = append(strs, str)
 	}
-	return strings.Join(strs, "\n")
+	return strings.Join(strs, "\n\n")
 }
 
 func (c *code) String() string {
