@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
@@ -43,13 +44,7 @@ func newPostFromPath(path string) *post {
 		panic(err)
 	}
 
-	p := newPost(data)
-	p.path = path
-	return p
-}
-
-func newPost(data []byte) *post {
-	p := &post{html: determinedFormat(data)}
+	p := &post{path: path, html: determinedFormat(data)}
 	p.parse()
 	return p
 }
@@ -67,12 +62,42 @@ func (p *post) parse() {
 }
 
 func (p *post) MdFileName() string {
+	return p.baseName() + ".md"
+}
+
+func (p *post) baseName() string {
 	name := filepath.Base(p.path)
-	name = strings.TrimSuffix(name, filepath.Ext(name))
-	if name == "" {
-		name = p.slug()
+	return strings.TrimSuffix(name, filepath.Ext(name))
+}
+
+func (p *post) dirName() string {
+	return filepath.Dir(p.path)
+}
+
+func (p *post) originAttachmentsDir() string {
+	return filepath.Join(p.dirName(), p.baseName()+"_files")
+}
+
+func (p *post) copyAttachmentsTo(destDir string) {
+	srcDir := p.originAttachmentsDir()
+	if _, err := os.Stat(srcDir); err != nil && os.IsNotExist(err) {
+		return
 	}
-	return name + ".md"
+
+	files, err := ioutil.ReadDir(srcDir)
+	if err != nil {
+		panic(err)
+	}
+
+	destDir = filepath.Join(destDir, p.slug())
+	if err := os.Mkdir(destDir, 0644); err != nil {
+		panic(err)
+	}
+
+	for _, file := range files {
+		a := attachment{path: filepath.Join(srcDir, file.Name())}
+		a.copyToDir(destDir)
+	}
 }
 
 func (p *post) slug() string {

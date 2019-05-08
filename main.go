@@ -64,12 +64,16 @@ func output(toDir string, clean bool) func(p *post) {
 		if err := ioutil.WriteFile(dest, []byte(p.String()), 0644); err != nil {
 			panic(err)
 		}
+
+		p.copyAttachmentsTo(attachmentsDir)
 	}
 }
 
 func cleanDir(clean bool, dir string) {
 	if _, err := os.Stat(dir); err != nil && os.IsNotExist(err) {
-		os.Mkdir(dir, 0644)
+		if err := os.Mkdir(dir, 0644); err != nil {
+			panic(err)
+		}
 		return
 	}
 
