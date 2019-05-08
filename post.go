@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"io/ioutil"
+	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -66,8 +67,17 @@ func (p *post) parse() {
 }
 
 func (p *post) MdFileName() string {
-	sum := md5.Sum([]byte(p.String()))
-	return fmt.Sprintf("%x", sum) + ".md"
+	name := filepath.Base(p.path)
+	name = strings.TrimSuffix(name, filepath.Ext(name))
+	if name == "" {
+		name = p.slug()
+	}
+	return name + ".md"
+}
+
+func (p *post) slug() string {
+	sum := md5.Sum([]byte(p.content()))
+	return fmt.Sprintf("%x", sum)
 }
 
 func (p *post) meta() string {
@@ -75,6 +85,9 @@ func (p *post) meta() string {
 	sb.WriteString("---\n")
 	sb.WriteString("title: \"")
 	sb.WriteString(p.Title())
+	sb.WriteString("\"\n")
+	sb.WriteString("slug: \"")
+	sb.WriteString(p.slug())
 	sb.WriteString("\"\n")
 	sb.WriteString("date: ")
 	sb.WriteString(p.CreatedAt())
@@ -129,7 +142,11 @@ func (p *post) String() string {
 		}
 	}()
 
-	strs := []string{p.meta()}
+	return strings.Join([]string{p.meta(), p.content()}, "\n\n")
+}
+
+func (p *post) content() string {
+	strs := []string{}
 	for _, p := range p.paragraphs {
 		str := p.String()
 		length := len(strs)
