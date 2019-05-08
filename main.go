@@ -11,7 +11,7 @@ import (
 func main() {
 	singleFile := flag.String("file", "", "the single file will be converted")
 	fromDir := flag.String("from", "", "files in this dir will be converted")
-	toDir := flag.String("to", "", "output to this dir if specified, else output to stdout")
+	toDir := flag.String("to", "", "output to posts/ and attachments/ this dir if specified, else output to stdout")
 	clean := flag.Bool("clean", false, "clean destination dir")
 	help := flag.Bool("help", false, "print usage")
 	flag.Parse()
@@ -55,10 +55,12 @@ func output(toDir string, clean bool) func(p *post) {
 		}
 	}
 
-	cleanDir(clean, toDir)
+	postsDir, attachmentsDir := filepath.Join(toDir, "posts"), filepath.Join(toDir, "attachments")
+	cleanDir(clean, postsDir)
+	cleanDir(clean, attachmentsDir)
 
 	return func(p *post) {
-		dest := filepath.Join(toDir, p.MdFileName())
+		dest := filepath.Join(postsDir, p.MdFileName())
 		if err := ioutil.WriteFile(dest, []byte(p.String()), 0644); err != nil {
 			panic(err)
 		}
@@ -66,6 +68,11 @@ func output(toDir string, clean bool) func(p *post) {
 }
 
 func cleanDir(clean bool, dir string) {
+	if _, err := os.Stat(dir); err != nil && os.IsNotExist(err) {
+		os.Mkdir(dir, 0644)
+		return
+	}
+
 	files, err := ioutil.ReadDir(dir)
 	if err != nil {
 		panic(err)
