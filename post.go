@@ -101,7 +101,7 @@ func (p *post) copyAttachmentsTo(destDir string) {
 }
 
 func (p *post) slug() string {
-	sum := md5.Sum([]byte(p.content()))
+	sum := md5.Sum([]byte(p.Title()))
 	return fmt.Sprintf("%x", sum)
 }
 
@@ -138,20 +138,26 @@ func (p *post) parseBody() {
 		node := div.Children().First()
 		nodeName := goquery.NodeName(node)
 
-		if nodeName == "" || nodeName == "span" {
-			p.addParagraph(&text{div})
-			return
-		}
-
 		if nodeName == "br" {
 			p.addParagraph(&br{})
 			return
 		}
 
-		if nodeName == "a" {
-			p.addParagraph(&link{div})
+		innerText := div.Text()
+
+		if len(innerText) == 0 {
+			if nodeName == "a" {
+				p.addParagraph(&attachmentRef{p.slug(), div})
+			}
+
+			if nodeName == "img" {
+				p.addParagraph(&imgRef{p.slug(), node})
+			}
+
 			return
 		}
+
+		p.addParagraph(&text{div})
 	})
 }
 

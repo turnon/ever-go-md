@@ -4,6 +4,8 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/PuerkitoBio/goquery"
 )
 
 type attachment struct {
@@ -42,4 +44,26 @@ func (a *attachment) copyToDir(dir string) {
 
 func (a *attachment) name() string {
 	return filepath.Base(a.path)
+}
+
+type attachmentRef struct {
+	subDir string
+	div    *goquery.Selection
+}
+
+func (a *attachmentRef) String() string {
+	return ""
+}
+
+type imgRef struct {
+	subDir string
+	img    *goquery.Selection
+}
+
+func (i *imgRef) String() string {
+	filename, exists := i.img.Attr("data-filename")
+	if !exists {
+		panic("data-filename not found")
+	}
+	return `![alt text](/attachments/` + i.subDir + `/` + filename + ` "` + filename + `")`
 }
