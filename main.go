@@ -11,7 +11,7 @@ import (
 func main() {
 	singleFile := flag.String("file", "", "the single file will be converted")
 	fromDir := flag.String("from", "", "files in this dir will be converted")
-	toDir := flag.String("to", "", "output to posts/ and attachments/ this dir if specified, else output to stdout")
+	toDir := flag.String("to", "", "output to content/posts/ and static/attachments/ this dir if specified, else output to stdout")
 	clean := flag.Bool("clean", false, "clean destination dir")
 	help := flag.Bool("help", false, "print usage")
 	flag.Parse()
@@ -55,7 +55,7 @@ func output(toDir string, clean bool) func(p *post) {
 		}
 	}
 
-	postsDir, attachmentsDir := filepath.Join(toDir, "posts"), filepath.Join(toDir, "attachments")
+	postsDir, attachmentsDir := filepath.Join(toDir, "content", "posts"), filepath.Join(toDir, "static", "attachments")
 	cleanDir(clean, postsDir)
 	cleanDir(clean, attachmentsDir)
 
