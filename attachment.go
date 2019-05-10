@@ -48,9 +48,8 @@ func (a *attachment) name() string {
 }
 
 type attachmentRef struct {
-	orgSubDir string
-	newSubDir string
-	a         *goquery.Selection
+	*post
+	a *goquery.Selection
 }
 
 func (a *attachmentRef) String() string {
@@ -58,24 +57,24 @@ func (a *attachmentRef) String() string {
 	if !exists {
 		panic("href not found")
 	}
-	href = strings.Replace(href, a.orgSubDir, a.pathDir(), 1)
+	href = strings.Replace(href, a.originAttachmentsSubDir(), a.pathDir(), 1)
 
 	imgTag, err := a.a.Html()
 	if err != nil {
 		panic(err)
 	}
-	imgTag = strings.Replace(imgTag, a.orgSubDir, a.pathDir(), 1)
+	imgTag = strings.Replace(imgTag, a.originAttachmentsSubDir(), a.pathDir(), 1)
 
 	return `[` + imgTag + `](` + href + `)`
 }
 
 func (a *attachmentRef) pathDir() string {
-	return "/attachments/" + a.newSubDir
+	return "/attachments/" + a.slug()
 }
 
 type imgRef struct {
-	subDir string
-	img    *goquery.Selection
+	*post
+	img *goquery.Selection
 }
 
 func (i *imgRef) String() string {
@@ -83,5 +82,5 @@ func (i *imgRef) String() string {
 	if !exists {
 		panic("data-filename not found")
 	}
-	return `![alt text](/attachments/` + i.subDir + `/` + filename + ` "` + filename + `")`
+	return `![alt text](/attachments/` + i.slug() + `/` + filename + ` "` + filename + `")`
 }

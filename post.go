@@ -151,11 +151,11 @@ func (p *post) parseBody() {
 
 		if len(innerText) == 0 {
 			if nodeName == "a" {
-				p.addParagraph(&attachmentRef{p.originAttachmentsSubDir(), p.slug(), node})
+				p.addParagraph(&attachmentRef{p, node})
 			}
 
 			if nodeName == "img" {
-				p.addParagraph(&imgRef{p.slug(), node})
+				p.addParagraph(&imgRef{p, node})
 			}
 
 			return
