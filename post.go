@@ -75,7 +75,11 @@ func (p *post) dirName() string {
 }
 
 func (p *post) originAttachmentsDir() string {
-	return filepath.Join(p.dirName(), p.baseName()+"_files")
+	return filepath.Join(p.dirName(), p.originAttachmentsSubDir())
+}
+
+func (p *post) originAttachmentsSubDir() string {
+	return p.baseName() + "_files"
 }
 
 func (p *post) copyAttachmentsTo(destDir string) {
@@ -147,7 +151,7 @@ func (p *post) parseBody() {
 
 		if len(innerText) == 0 {
 			if nodeName == "a" {
-				p.addParagraph(&attachmentRef{p.slug(), div})
+				p.addParagraph(&attachmentRef{p.originAttachmentsSubDir(), p.slug(), node})
 			}
 
 			if nodeName == "img" {

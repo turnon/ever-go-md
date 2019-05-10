@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -47,12 +48,29 @@ func (a *attachment) name() string {
 }
 
 type attachmentRef struct {
-	subDir string
-	div    *goquery.Selection
+	orgSubDir string
+	newSubDir string
+	a         *goquery.Selection
 }
 
 func (a *attachmentRef) String() string {
-	return ""
+	href, exists := a.a.Attr("href")
+	if !exists {
+		panic("href not found")
+	}
+	href = strings.Replace(href, a.orgSubDir, a.pathDir(), 1)
+
+	imgTag, err := a.a.Html()
+	if err != nil {
+		panic(err)
+	}
+	imgTag = strings.Replace(imgTag, a.orgSubDir, a.pathDir(), 1)
+
+	return `[` + imgTag + `](` + href + `)`
+}
+
+func (a *attachmentRef) pathDir() string {
+	return "/attachments/" + a.newSubDir
 }
 
 type imgRef struct {
