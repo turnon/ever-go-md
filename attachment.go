@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -77,10 +78,19 @@ type imgRef struct {
 	img *goquery.Selection
 }
 
-func (i *imgRef) String() string {
-	filename, exists := i.img.Attr("data-filename")
+func (i *imgRef) fileName() string {
+	src, exists := i.img.Attr("src")
 	if !exists {
-		panic("data-filename not found")
+		err := errors.New("src not found")
+		panic(err)
 	}
-	return `![alt text](/attachments/` + i.slug() + `/` + filename + ` "` + filename + `")`
+	return filepath.Base(src)
+}
+
+func (i *imgRef) String() string {
+	return `![alt text](` + i.path() + ` "` + i.fileName() + `")`
+}
+
+func (i *imgRef) path() string {
+	return "/attachments/" + i.slug() + "/" + i.fileName()
 }

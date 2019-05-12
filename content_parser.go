@@ -112,7 +112,14 @@ type replacer struct {
 }
 
 func (r *replacer) ContentString() string {
-	html, err := r.RawBody().Html()
+	rawBody := r.RawBody()
+
+	rawBody.Find("img").Each(func(i int, img *goquery.Selection) {
+		path := (&imgRef{r.post, img}).path()
+		img.SetAttr("src", path)
+	})
+
+	html, err := rawBody.Html()
 	if err != nil {
 		panic(err)
 	}

@@ -114,7 +114,7 @@ func (p *post) tagsStr() string {
 func (p *post) String() string {
 	defer func() {
 		if r := recover(); r != nil {
-			r = errors.Wrap(r.(runtime.Error), p.path)
+			r = errors.Wrap(r.(error), p.path)
 			panic(r)
 		}
 	}()
