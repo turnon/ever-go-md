@@ -18,23 +18,24 @@ type post struct {
 	contentParser
 }
 
-type contentParser func(*post) string
+func pickContentParser(p *post, contentParserName string) {
+	if contentParserName == "extractBody" {
+		p.contentParser = &extracter{post: p}
+	} else {
+		p.contentParser = &replacer{post: p}
+	}
+}
 
 func postParser(contentParserName string) func(path string) *post {
-	var contentParserImpl contentParser
-	if contentParserName == "extractBody" {
-		contentParserImpl = extractBody
-	} else {
-		contentParserImpl = replaceBody
-	}
-
 	return func(path string) *post {
 		data, err := ioutil.ReadFile(path)
 		if err != nil {
 			panic(err)
 		}
 
-		return &post{path: path, html: determinedFormat(data), contentParser: contentParserImpl}
+		p := &post{path: path, html: determinedFormat(data)}
+		pickContentParser(p, contentParserName)
+		return p
 	}
 }
 
@@ -125,5 +126,5 @@ func (p *post) String() string {
 		}
 	}()
 
-	return strings.Join([]string{p.meta(), p.contentParser(p)}, "\n\n")
+	return strings.Join([]string{p.meta(), p.ContentString()}, "\n\n")
 }
