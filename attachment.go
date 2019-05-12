@@ -53,20 +53,23 @@ type attachmentRef struct {
 	a *goquery.Selection
 }
 
-func (a *attachmentRef) String() string {
+func (a *attachmentRef) path() string {
 	href, exists := a.a.Attr("href")
 	if !exists {
-		panic("href not found")
+		err := errors.New("href not found")
+		panic(err)
 	}
-	href = strings.Replace(href, a.originAttachmentsSubDir(), a.pathDir(), 1)
+	return strings.Replace(href, a.originAttachmentsSubDir(), a.pathDir(), 1)
+}
 
+func (a *attachmentRef) String() string {
 	imgTag, err := a.a.Html()
 	if err != nil {
 		panic(err)
 	}
 	imgTag = strings.Replace(imgTag, a.originAttachmentsSubDir(), a.pathDir(), 1)
 
-	return `[` + imgTag + `](` + href + `)`
+	return `[` + imgTag + `](` + a.path() + `)`
 }
 
 func (a *attachmentRef) pathDir() string {

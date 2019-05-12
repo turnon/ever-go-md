@@ -119,6 +119,12 @@ func (r *replacer) ContentString() string {
 		img.SetAttr("src", path)
 	})
 
+	rawBody.Find("a > img").Each(func(i int, img *goquery.Selection) {
+		a := img.Parent()
+		path := (&attachmentRef{r.post, a}).path()
+		a.SetAttr("href", path)
+	})
+
 	html, err := rawBody.Html()
 	if err != nil {
 		panic(err)
