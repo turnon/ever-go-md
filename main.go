@@ -12,6 +12,7 @@ func main() {
 	singleFile := flag.String("file", "", "the single file will be converted")
 	fromDir := flag.String("from", "", "files in this dir will be converted")
 	toDir := flag.String("to", "", "output to content/posts/ and static/attachments/ this dir if specified, else output to stdout")
+	parserName := flag.String("parser", "replaceBody", "parser name, `extractBody` by default")
 	clean := flag.Bool("clean", false, "clean destination dir")
 	help := flag.Bool("help", false, "print usage")
 	flag.Parse()
@@ -22,18 +23,18 @@ func main() {
 	}
 
 	outFunc := output(*toDir, *clean)
+	parse := postParser(*parserName)
 
+	// handle single file
 	if singleFilePath := *singleFile; singleFilePath != "" {
-		p := newPostFromPath(singleFilePath)
+		p := parse(singleFilePath)
 		outFunc(p)
 		return
 	}
 
-	handleFiles(*fromDir, outFunc)
-}
-
-func handleFiles(fromDir string, outFunc func(p *post)) {
-	files, err := ioutil.ReadDir(fromDir)
+	// handle multiple files
+	formDirName := *fromDir
+	files, err := ioutil.ReadDir(formDirName)
 	if err != nil {
 		panic(err)
 	}
@@ -43,7 +44,7 @@ func handleFiles(fromDir string, outFunc func(p *post)) {
 			continue
 		}
 
-		p := newPostFromPath(filepath.Join(fromDir, file.Name()))
+		p := parse(filepath.Join(formDirName, file.Name()))
 		outFunc(p)
 	}
 }

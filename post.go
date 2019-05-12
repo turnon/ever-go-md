@@ -17,7 +17,10 @@ type post struct {
 	path string
 	html
 	paragraphs []paragraph
+	contentParser
 }
+
+type contentParser func(*post) string
 
 type paragraph interface {
 	String() string
@@ -34,19 +37,22 @@ type text struct {
 type br struct {
 }
 
-type link struct {
-	div *goquery.Selection
-}
-
-func newPostFromPath(path string) *post {
-	data, err := ioutil.ReadFile(path)
-	if err != nil {
-		panic(err)
+func postParser(contentParserName string) func(path string) *post {
+	var contentParserImpl contentParser
+	if contentParserName == "extractBody" {
+		contentParserImpl = extractBody
+	} else {
+		contentParserImpl = replaceBody
 	}
 
-	p := &post{path: path, html: determinedFormat(data)}
-	p.parse()
-	return p
+	return func(path string) *post {
+		data, err := ioutil.ReadFile(path)
+		if err != nil {
+			panic(err)
+		}
+
+		return &post{path: path, html: determinedFormat(data), contentParser: contentParserImpl}
+	}
 }
 
 func determinedFormat(data []byte) html {
@@ -55,10 +61,6 @@ func determinedFormat(data []byte) html {
 	}
 
 	return &macHTML{data}
-}
-
-func (p *post) parse() {
-	p.parseBody()
 }
 
 func (p *post) MdFileName() string {
@@ -181,6 +183,19 @@ func (p *post) String() string {
 }
 
 func (p *post) content() string {
+	return p.contentParser(p)
+}
+
+func replaceBody(p *post) string {
+	html, err := p.RawBody().Html()
+	if err != nil {
+		panic(err)
+	}
+	return html
+}
+
+func extractBody(p *post) string {
+	p.parseBody()
 	strs := []string{}
 	for _, p := range p.paragraphs {
 		str := p.String()
@@ -216,9 +231,4 @@ func (t *text) String() string {
 
 func (s *br) String() string {
 	return "\n"
-}
-
-func (l *link) String() string {
-	href, _ := l.div.Children().First().Attr("href")
-	return href
 }

@@ -13,6 +13,7 @@ type html interface {
 	CreatedAt() string
 	Tags() []string
 	Body() *goquery.Selection
+	RawBody() *goquery.Selection
 }
 
 type winHTML struct {
@@ -32,10 +33,14 @@ var (
 	macTags              = regexp.MustCompile(`(?s)<meta name="keywords" content="(.*?)"/>`)
 )
 
-func (w *winHTML) Body() *goquery.Selection {
+func (w *winHTML) RawBody() *goquery.Selection {
 	data := winHTMLRebundantTags.ReplaceAll(w.data, []byte(""))
 	doc := fileToDoc(data)
-	return doc.Find("div > span").Children()
+	return doc.Find("div > span")
+}
+
+func (w *winHTML) Body() *goquery.Selection {
+	return w.RawBody().Children()
 }
 
 func (w *winHTML) Title() string {
@@ -61,9 +66,13 @@ func (w *winHTML) Tags() []string {
 	return strings.Split(string(byts), ", ")
 }
 
-func (m *macHTML) Body() *goquery.Selection {
+func (m *macHTML) RawBody() *goquery.Selection {
 	doc := fileToDoc(m.data)
-	return doc.Find("body").Children()
+	return doc.Find("body")
+}
+
+func (m *macHTML) Body() *goquery.Selection {
+	return m.RawBody().Children()
 }
 
 func (m *macHTML) Title() string {
