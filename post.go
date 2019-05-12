@@ -96,22 +96,15 @@ func (p *post) slug() string {
 }
 
 func (p *post) meta() string {
-	sb := strings.Builder{}
-	sb.WriteString("---\n")
-	sb.WriteString("title: \"")
-	sb.WriteString(p.Title())
-	sb.WriteString("\"\n")
-	sb.WriteString("slug: \"")
-	sb.WriteString(p.slug())
-	sb.WriteString("\"\n")
-	sb.WriteString("date: ")
-	sb.WriteString(p.CreatedAt())
-	sb.WriteString("\n")
-	sb.WriteString("tags: ")
-	sb.WriteString(p.tagsStr())
-	sb.WriteString("\n")
-	sb.WriteString("---\n")
-	return sb.String()
+	metas := []string{
+		"---\n",
+		"title: \"", p.Title(), "\"\n",
+		"slug: \"", p.slug(), "\"\n",
+		"date: ", p.CreatedAt(), "\n",
+		"tags: ", p.tagsStr(), "\n",
+		"---\n",
+	}
+	return strings.Join(metas, "")
 }
 
 func (p *post) tagsStr() string {
