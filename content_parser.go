@@ -125,6 +125,22 @@ func (r *replacer) ContentString() string {
 		a.SetAttr("href", path)
 	})
 
+	rawBody.Find("div[style]").Each(func(i int, div *goquery.Selection) {
+		if style, _ := div.Attr("style"); strings.Index(style, "box-sizing") < 0 {
+			return
+		}
+
+		lines := []string{}
+		div.Children().Each(func(i int, line *goquery.Selection) {
+			lines = append(lines, line.Text())
+		})
+		code := strings.Join(lines, "\n")
+
+		pre := strings.Join([]string{"<pre><code>", code, "</code></pre>"}, "")
+		div.AfterHtml(pre)
+		div.Remove()
+	})
+
 	html, err := rawBody.Html()
 	if err != nil {
 		panic(err)
