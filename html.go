@@ -8,7 +8,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-type html interface {
+type htmlFile interface {
 	Title() string
 	CreatedAt() string
 	Tags() []string

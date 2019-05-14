@@ -14,7 +14,7 @@ import (
 
 type post struct {
 	path string
-	html
+	htmlFile
 	contentParser
 }
 
@@ -33,13 +33,13 @@ func postParser(contentParserName string) func(path string) *post {
 			panic(err)
 		}
 
-		p := &post{path: path, html: determinedFormat(data)}
+		p := &post{path: path, htmlFile: determinedFormat(data)}
 		pickContentParser(p, contentParserName)
 		return p
 	}
 }
 
-func determinedFormat(data []byte) html {
+func determinedFormat(data []byte) htmlFile {
 	if runtime.GOOS == "windows" {
 		return &winHTML{data}
 	}
