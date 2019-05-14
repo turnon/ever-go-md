@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"io"
 	"os"
 	"path/filepath"
@@ -52,20 +53,23 @@ type attachmentRef struct {
 	a *goquery.Selection
 }
 
-func (a *attachmentRef) String() string {
+func (a *attachmentRef) path() string {
 	href, exists := a.a.Attr("href")
 	if !exists {
-		panic("href not found")
+		err := errors.New("href not found")
+		panic(err)
 	}
-	href = strings.Replace(href, a.originAttachmentsSubDir(), a.pathDir(), 1)
+	return strings.Replace(href, a.originAttachmentsSubDir(), a.pathDir(), 1)
+}
 
+func (a *attachmentRef) String() string {
 	imgTag, err := a.a.Html()
 	if err != nil {
 		panic(err)
 	}
 	imgTag = strings.Replace(imgTag, a.originAttachmentsSubDir(), a.pathDir(), 1)
 
-	return `[` + imgTag + `](` + href + `)`
+	return `[` + imgTag + `](` + a.path() + `)`
 }
 
 func (a *attachmentRef) pathDir() string {
@@ -77,10 +81,19 @@ type imgRef struct {
 	img *goquery.Selection
 }
 
-func (i *imgRef) String() string {
-	filename, exists := i.img.Attr("data-filename")
+func (i *imgRef) fileName() string {
+	src, exists := i.img.Attr("src")
 	if !exists {
-		panic("data-filename not found")
+		err := errors.New("src not found")
+		panic(err)
 	}
-	return `![alt text](/attachments/` + i.slug() + `/` + filename + ` "` + filename + `")`
+	return filepath.Base(src)
+}
+
+func (i *imgRef) String() string {
+	return `![alt text](` + i.path() + ` "` + i.fileName() + `")`
+}
+
+func (i *imgRef) path() string {
+	return "/attachments/" + i.slug() + "/" + i.fileName()
 }
