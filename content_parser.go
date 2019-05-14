@@ -114,6 +114,15 @@ type replacer struct {
 func (r *replacer) ContentString() string {
 	rawBody := r.RawBody()
 
+	rawBody.Find("div[style]").Each(func(i int, div *goquery.Selection) {
+		if style, _ := div.Attr("style"); strings.Index(style, "break-word") < 0 {
+			return
+		}
+
+		div.BeforeSelection(div.Children())
+		div.Remove()
+	})
+
 	rawBody.Find("img").Each(func(i int, img *goquery.Selection) {
 		path := (&imgRef{r.post, img}).path()
 		img.SetAttr("src", path)
