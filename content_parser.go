@@ -8,6 +8,7 @@ import (
 
 type contentParser interface {
 	ContentString() string
+	Excerpt() string
 }
 
 type extracter struct {
@@ -67,6 +68,10 @@ func (e *extracter) parseBody() {
 	})
 }
 
+func (e *extracter) Excerpt() string {
+	return ""
+}
+
 func (e *extracter) ContentString() string {
 	e.parseBody()
 
@@ -109,6 +114,18 @@ func (s *br) String() string {
 
 type replacer struct {
 	*post
+}
+
+func (r *replacer) Excerpt() string {
+	divs := r.RawBody().Find("div")
+	text := strings.ReplaceAll(divs.First().Text(), `"`, `\"`)
+	runeStr := []rune(text)
+
+	if len(runeStr) > 140 {
+		runeStr = runeStr[:140]
+	}
+
+	return string(runeStr) + "..."
 }
 
 func (r *replacer) ContentString() string {

@@ -101,6 +101,7 @@ func (p *post) meta() string {
 		"title: \"", p.Title(), "\"\n",
 		"slug: \"", p.slug(), "\"\n",
 		"date: ", p.CreatedAt(), "\n",
+		"excerpt: \"", p.Excerpt(), "\"\n",
 		"tags: ", p.tagsStr(), "\n",
 		"---\n",
 	}
