@@ -48,7 +48,7 @@ func determinedFormat(data []byte) htmlFile {
 }
 
 func (p *post) MdFileName() string {
-	return p.baseName() + ".md"
+	return p.CreatedAt() + "-" + p.baseName() + ".md"
 }
 
 func (p *post) baseName() string {
