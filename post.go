@@ -1,8 +1,6 @@
 package main
 
 import (
-	"crypto/md5"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -48,7 +46,7 @@ func determinedFormat(data []byte) htmlFile {
 }
 
 func (p *post) MdFileName() string {
-	return p.baseName() + ".md"
+	return p.CreatedAt() + "-" + p.baseName() + ".md"
 }
 
 func (p *post) baseName() string {
@@ -91,8 +89,11 @@ func (p *post) copyAttachmentsTo(destDir string) {
 }
 
 func (p *post) slug() string {
-	sum := md5.Sum([]byte(p.Title()))
-	return fmt.Sprintf("%x", sum)
+	return md5Str(p.Title())
+}
+
+func (p *post) assetsLocation() string {
+	return filepath.Join(assetsFiles, p.slug())
 }
 
 func (p *post) meta() string {
@@ -101,6 +102,7 @@ func (p *post) meta() string {
 		"title: \"", p.Title(), "\"\n",
 		"slug: \"", p.slug(), "\"\n",
 		"date: ", p.CreatedAt(), "\n",
+		"excerpt: \"", p.Excerpt(), "\"\n",
 		"tags: ", p.tagsStr(), "\n",
 		"---\n",
 	}

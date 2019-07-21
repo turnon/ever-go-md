@@ -1,7 +1,9 @@
 package main
 
 import (
+	"crypto/md5"
 	"errors"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -9,6 +11,8 @@ import (
 
 	"github.com/PuerkitoBio/goquery"
 )
+
+const assetsFiles = "/assets/files"
 
 type attachment struct {
 	path string
@@ -25,7 +29,7 @@ func (a *attachment) copyToDir(dir string) {
 	}
 	defer srcfd.Close()
 
-	destPath := filepath.Join(dir, a.name())
+	destPath := filepath.Join(dir, renamedAttachment(a.name()))
 	if destfd, err = os.Create(destPath); err != nil {
 		panic(err)
 	}
@@ -59,35 +63,33 @@ func (a *attachmentRef) path() string {
 		err := errors.New("href not found")
 		panic(err)
 	}
-	return strings.Replace(href, a.originAttachmentsSubDir(), a.pathDir(), 1)
-}
 
-func (a *attachmentRef) String() string {
-	imgTag, err := a.a.Html()
-	if err != nil {
-		panic(err)
-	}
-	imgTag = strings.Replace(imgTag, a.originAttachmentsSubDir(), a.pathDir(), 1)
+	newHref := strings.Replace(href, a.originAttachmentsSubDir(), a.assetsLocation(), 1)
+	basename := filepath.Base(newHref)
+	newBasename := renamedAttachment(basename)
 
-	return `[` + imgTag + `](` + a.path() + `)`
-}
-
-func (a *attachmentRef) pathDir() string {
-	return "/attachments/" + a.slug()
+	return strings.Replace(newHref, basename, newBasename, 1)
 }
 
 type imgRef struct {
 	*post
-	img *goquery.Selection
+	img       *goquery.Selection
+	_fileName string
 }
 
 func (i *imgRef) fileName() string {
+	if i._fileName != "" {
+		return i._fileName
+	}
+
 	src, exists := i.img.Attr("src")
 	if !exists {
 		err := errors.New("src not found")
 		panic(err)
 	}
-	return filepath.Base(src)
+
+	i._fileName = renamedAttachment(filepath.Base(src))
+	return i._fileName
 }
 
 func (i *imgRef) String() string {
@@ -95,5 +97,16 @@ func (i *imgRef) String() string {
 }
 
 func (i *imgRef) path() string {
-	return "/attachments/" + i.slug() + "/" + i.fileName()
+	return filepath.Join(i.assetsLocation(), i.fileName())
+}
+
+func renamedAttachment(path string) string {
+	ext := filepath.Ext(path)
+	noExt := strings.TrimSuffix(path, ext)
+	return md5Str(noExt) + ext
+}
+
+func md5Str(str string) string {
+	sum := md5.Sum([]byte(str))
+	return fmt.Sprintf("%x", sum)
 }

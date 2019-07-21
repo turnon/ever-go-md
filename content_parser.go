@@ -8,6 +8,7 @@ import (
 
 type contentParser interface {
 	ContentString() string
+	Excerpt() string
 }
 
 type extracter struct {
@@ -57,7 +58,7 @@ func (e *extracter) parseBody() {
 			}
 
 			if nodeName == "img" {
-				e.addParagraph(&imgRef{e.post, node})
+				e.addParagraph(&imgRef{post: e.post, img: node})
 			}
 
 			return
@@ -65,6 +66,10 @@ func (e *extracter) parseBody() {
 
 		e.addParagraph(&text{div})
 	})
+}
+
+func (e *extracter) Excerpt() string {
+	return ""
 }
 
 func (e *extracter) ContentString() string {
@@ -111,6 +116,18 @@ type replacer struct {
 	*post
 }
 
+func (r *replacer) Excerpt() string {
+	divs := r.RawBody().Find("div")
+	text := strings.ReplaceAll(divs.First().Text(), `"`, `\"`)
+	runeStr := []rune(text)
+
+	if len(runeStr) > 140 {
+		runeStr = runeStr[:140]
+	}
+
+	return string(runeStr) + "..."
+}
+
 func (r *replacer) ContentString() string {
 	rawBody := r.RawBody()
 
@@ -124,7 +141,7 @@ func (r *replacer) ContentString() string {
 	})
 
 	rawBody.Find("img").Each(func(i int, img *goquery.Selection) {
-		path := (&imgRef{r.post, img}).path()
+		path := (&imgRef{post: r.post, img: img}).path()
 		img.SetAttr("src", path)
 	})
 
