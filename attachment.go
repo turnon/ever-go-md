@@ -10,6 +10,8 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+const assetsFiles = "/assets/files"
+
 type attachment struct {
 	path string
 }
@@ -59,7 +61,7 @@ func (a *attachmentRef) path() string {
 		err := errors.New("href not found")
 		panic(err)
 	}
-	return strings.Replace(href, a.originAttachmentsSubDir(), a.pathDir(), 1)
+	return strings.Replace(href, a.originAttachmentsSubDir(), a.assetsLocation(), 1)
 }
 
 func (a *attachmentRef) String() string {
@@ -67,13 +69,9 @@ func (a *attachmentRef) String() string {
 	if err != nil {
 		panic(err)
 	}
-	imgTag = strings.Replace(imgTag, a.originAttachmentsSubDir(), a.pathDir(), 1)
+	imgTag = strings.Replace(imgTag, a.originAttachmentsSubDir(), a.assetsLocation(), 1)
 
 	return `[` + imgTag + `](` + a.path() + `)`
-}
-
-func (a *attachmentRef) pathDir() string {
-	return "/attachments/" + a.slug()
 }
 
 type imgRef struct {
@@ -95,5 +93,5 @@ func (i *imgRef) String() string {
 }
 
 func (i *imgRef) path() string {
-	return "/attachments/" + i.slug() + "/" + i.fileName()
+	return filepath.Join(i.assetsLocation(), i.fileName())
 }

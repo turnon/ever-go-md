@@ -95,6 +95,10 @@ func (p *post) slug() string {
 	return fmt.Sprintf("%x", sum)
 }
 
+func (p *post) assetsLocation() string {
+	return filepath.Join(assetsFiles, p.slug())
+}
+
 func (p *post) meta() string {
 	metas := []string{
 		"---\n",

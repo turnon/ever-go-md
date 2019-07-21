@@ -56,7 +56,7 @@ func output(toDir string, clean bool) func(p *post) {
 		}
 	}
 
-	postsDir, attachmentsDir := filepath.Join(toDir, "content", "posts"), filepath.Join(toDir, "static", "attachments")
+	postsDir, attachmentsDir := filepath.Join(toDir, "_posts"), filepath.Join(toDir, assetsFiles)
 	cleanDir(clean, postsDir)
 	cleanDir(clean, attachmentsDir)
 
@@ -72,7 +72,7 @@ func output(toDir string, clean bool) func(p *post) {
 
 func cleanDir(clean bool, dir string) {
 	if _, err := os.Stat(dir); err != nil && os.IsNotExist(err) {
-		if err := os.Mkdir(dir, 0644); err != nil {
+		if err := os.MkdirAll(dir, 0644); err != nil {
 			panic(err)
 		}
 		return
