@@ -1,8 +1,6 @@
 package main
 
 import (
-	"crypto/md5"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -91,8 +89,7 @@ func (p *post) copyAttachmentsTo(destDir string) {
 }
 
 func (p *post) slug() string {
-	sum := md5.Sum([]byte(p.Title()))
-	return fmt.Sprintf("%x", sum)
+	return md5Str(p.Title())
 }
 
 func (p *post) assetsLocation() string {

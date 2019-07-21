@@ -58,7 +58,7 @@ func (e *extracter) parseBody() {
 			}
 
 			if nodeName == "img" {
-				e.addParagraph(&imgRef{e.post, node})
+				e.addParagraph(&imgRef{post: e.post, img: node})
 			}
 
 			return
@@ -141,7 +141,7 @@ func (r *replacer) ContentString() string {
 	})
 
 	rawBody.Find("img").Each(func(i int, img *goquery.Selection) {
-		path := (&imgRef{r.post, img}).path()
+		path := (&imgRef{post: r.post, img: img}).path()
 		img.SetAttr("src", path)
 	})
 
