@@ -12,7 +12,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
-const assetsFiles = "/assets/files"
+const assetsFiles = "/files"
 
 type attachment struct {
 	path string
