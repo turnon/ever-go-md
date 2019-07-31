@@ -38,7 +38,7 @@ func postParser(contentParserName string) func(path string) *post {
 }
 
 func determinedFormat(data []byte) htmlFile {
-	if runtime.GOOS == "windows" {
+	if os.Getenv("GOOS") == "windows" || runtime.GOOS == "windows" {
 		return &winHTML{data}
 	}
 
@@ -78,7 +78,7 @@ func (p *post) copyAttachmentsTo(destDir string) {
 	}
 
 	destDir = filepath.Join(destDir, p.slug())
-	if err := os.Mkdir(destDir, 0644); err != nil {
+	if err := os.Mkdir(destDir, 0777); err != nil {
 		panic(err)
 	}
 
@@ -93,7 +93,7 @@ func (p *post) slug() string {
 }
 
 func (p *post) assetsLocation() string {
-	return filepath.Join(assetsFiles, p.slug())
+	return filepath.Join("/assets", assetsFiles, p.slug())
 }
 
 func (p *post) meta() string {

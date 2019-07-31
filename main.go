@@ -62,7 +62,7 @@ func output(toDir string, clean bool) func(p *post) {
 
 	return func(p *post) {
 		dest := filepath.Join(postsDir, p.MdFileName())
-		if err := ioutil.WriteFile(dest, []byte(p.String()), 0644); err != nil {
+		if err := ioutil.WriteFile(dest, []byte(p.String()), 0777); err != nil {
 			panic(err)
 		}
 
@@ -72,7 +72,7 @@ func output(toDir string, clean bool) func(p *post) {
 
 func cleanDir(clean bool, dir string) {
 	if _, err := os.Stat(dir); err != nil && os.IsNotExist(err) {
-		if err := os.MkdirAll(dir, 0644); err != nil {
+		if err := os.MkdirAll(dir, 0777); err != nil {
 			panic(err)
 		}
 		return
