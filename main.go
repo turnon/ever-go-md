@@ -6,6 +6,9 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
+
+	"github.com/turnon/allchown"
 )
 
 func main() {
@@ -46,6 +49,11 @@ func main() {
 
 		p := parse(filepath.Join(formDirName, file.Name()))
 		outFunc(p)
+	}
+
+	if len(files) > 0 && runtime.GOOS != "windows" {
+		file := filepath.Join(formDirName, files[0].Name())
+		allchown.ChangeAs(*toDir, file)
 	}
 }
 
