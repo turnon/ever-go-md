@@ -55,6 +55,8 @@ github.com/stretchr/objx v0.1.1/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/objx v0.2.0/go.mod h1:qt09Ya8vawLte6SNmTgCsAVtYtaKzEcn8ATUoHMkEqE=
 github.com/stretchr/testify v1.2.2/go.mod h1:a8OnRcib4nhh0OaRAV+Yts87kKdq0PP7pXfy6kDkUVs=
 github.com/stretchr/testify v1.3.0/go.mod h1:M5WIy9Dh21IEIfnGCwXGc5bZfKNJtfHm1UVUgZn+9EI=
+github.com/turnon/allchown v0.0.0-20190830085225-48f92e8a6de1 h1:F3h0Fyu6jGwtYrkgI2sakQDfFOKGa9wWyIKu6X2N83w=
+github.com/turnon/allchown v0.0.0-20190830085225-48f92e8a6de1/go.mod h1:ERWknlBj1v3KnPzDR3NVeb3rA/eIdnvRrLD/PGJo7lo=
 golang.org/x/arch v0.0.0-20171004143515-077ac972c2e4/go.mod h1:cYlCBUl1MsqxdiKgmc4uh7TxZfWSFLOGSRR090WDxt8=
 golang.org/x/arch v0.0.0-20190312162104-788fe5ffcd8c h1:Rx/HTKi09myZ25t1SOlDHmHOy/mKxNAcu0hP1oPX9qM=
 golang.org/x/arch v0.0.0-20190312162104-788fe5ffcd8c/go.mod h1:flIaEI6LNU6xOCD5PaJvn9wGP0agmIOqjrtsKGRguv4=
